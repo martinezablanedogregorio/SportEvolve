@@ -8,6 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>SportEvolve ‚Äî V0.2 UX</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="mobile-polish.css" />
 </head>
 <body>
 <div class="app-shell">
@@ -126,11 +127,11 @@
         <h1>Pr√©vu ‚Üí r√©alis√©.</h1>
         <p>Le coach humain reste la r√©f√©rence. SportEvolve conserve le plan et mesure son ex√©cution.</p>
       </div>
-      <div class="card callout-card"><div><div class="micro">EXEMPLE UX</div><h3>Force & Engine ¬∑ 8 semaines</h3><p>Cette zone sera aliment√©e par le vrai programme de ton coach.</p></div><span class="soft-badge">5 / 8</span></div>
+      <div class="card callout-card"><div><div class="micro">EXEMPLE UX</div><h3>Force & Engine ¬∑ 8 semaines</h3><p>Cette zone sera aliment√©e avec le vrai programme de ton coach.</p></div><span class="soft-badge">5 / 8</span></div>
       <div class="section"><div class="section-head"><h2>Semaine 5</h2><span class="eyebrow">3 s√©ances pr√©vues</span></div><div class="program-list">
         <button class="card program-session done"><span class="program-day">LUN</span><span><b>Upper strength</b><small>R√©alis√©e ¬∑ 52 min</small></span><em>‚úì</em></button>
         <button class="card program-session next"><span class="program-day">JEU</span><span><b>Lower strength + Metcon</b><small>Prochaine ¬∑ exemple</small></span><em>‚Ä∫</em></button>
-        <button class="card program-session"><span class="program-day">SAM</span><span><b>Engine / Gymnastique</b><small>√Ä venir ¬∑ exemple</small></span><em>‚Ä∫</em></button>
+        <button class="card program-session"><span class="program-day">SAO</span><span><b>Engine / Gymnastique</b><small>√Ä venir ¬∑ exemple</small></span><em>‚Ä∫</em></button>
       </div></div>
       <div class="section"><div class="section-head"><h2>Coach virtuel</h2><span class="soft-badge">PLUS TARD</span></div><div class="card virtual-coach"><div class="coach-orb">‚ú¶</div><div><h3>Besoin d'une s√©ance ponctuelle ?</h3><p>√Ä terme : proposition selon temps disponible, √©quipement, charge r√©cente et besoins. Cette fonction restera secondaire.</p></div><button class="secondary" onclick="toast('Coach virtuel pr√©vu apr√®s validation UX + API')">Proposer une s√©ance</button></div></div>
     </section>
@@ -141,7 +142,7 @@
         <h1>Le long terme.</h1>
         <p>Identit√© sportive, sant√©, poids, VO‚ÇÇ max, objectifs, √©quipement et √©volution globale.</p>
       </div>
-      <div class="card identity-card"><div class="big-avatar" id="bigAvatar">GM</div><div class="identity-main"><h2 id="profileCardName">Gregorio</h2><p id="profileDescriptor">37 ans ¬∑ 1,86 m ¬∑ 85 kg</p></div><button class="icon-btn" onclick="toast('√âdition du profil dans une prochaine it√©ration')">‚Ä∫</button></div>
+      <div class="card identity-card"><div class="big-avatar" id="bigAvatar">GM</div><div class="identity-main"><h2 id="profileCardName">Gregorio</h2><p id="profileDescriptor">37 ans ¬∑ 1,86 m ¬∑ 85 kg</p></div><button class="icon-btn" onclick="toast('Câdition du profil dans une prochaine it√©ration')">‚Ä∫</button></div>
 
       <div class="section"><div class="section-head"><h2>Donn√©es corporelles</h2><span class="eyebrow">Historique long terme</span></div><div class="data-grid">
         <button class="card data-tile" id="weightTile"><span>Poids</span><b id="profileWeight">85,0 kg</b><small>Voir l'historique ‚Ä∫</small></button>
@@ -170,6 +171,7 @@
   </nav>
 </div>
 
+<!-- Reference detail -->
 <div class="overlay" id="referenceOverlay" aria-hidden="true">
   <div class="sheet detail-sheet">
     <div class="handle"></div>
@@ -178,43 +180,8 @@
   </div>
 </div>
 
+<!-- Suggested references -->
 <div class="overlay" id="suggestOverlay" aria-hidden="true">
-  <div class="sheet tall-sheet"><div class="handle"></div><div class="sheet-head"><div><div class="micro">PROFIL √Ä COMPL√âTER</div><h2>R√©f√©rences conseill√©es</h2><div class="desc">Une liste volontairement prioris√©e. Tu peux les renseigner progressivement.</div></div><button class="ghost" data-close="suggestOverlay">‚úï</button></div><div id="suggestList"></div></div>
-</div>
-
-<div class="overlay" id="addOverlay" aria-hidden="true">
-  <div class="sheet"><div class="handle"></div><div class="sheet-head"><div><h2>Ajouter</h2><div class="desc">Alimente la base avec ce que tu viens de faire ou mesurer.</div></div><button class="ghost" data-close="addOverlay">‚úï</button></div>
-    <div class="add-hub">
-      <button class="add-choice" data-addmode="session"><span class="choice-icon">‚ñ£</span><span><b>S√©ance</b><small>Exercices, WOD, RPE, dur√©e‚Ä¶</small></span><em>‚Ä∫</em></button>
-      <button class="add-choice" data-addmode="reference"><span class="choice-icon">‚óá</span><span><b>R√©f√©rence / PR</b><small>RM, chrono, max reps, benchmark‚Ä¶</small></span><em>‚Ä∫</em></button>
-      <button class="add-choice" data-addmode="measure"><span class="choice-icon">‚óé</span><span><b>Poids / VO‚ÇÇ max</b><small>Donn√©e corporelle ou physiologique</small></span><em>‚Ä∫</em></button>
-    </div>
-    <div class="future-row"><button onclick="toast('Photo WOD : pr√©vue avec l‚ÄôAPI GPT')">üì∑ Photo WOD <small>bient√¥t</small></button><button onclick="toast('Dict√©e : pr√©vue avec l‚ÄôAPI GPT')">üéôÔ∏è D√©crire <small>bient√¥t</small></button></div>
-  </div>
-</div>
-
-<div class="overlay" id="sessionOverlay" aria-hidden="true"><div class="sheet tall-sheet"><div class="handle"></div><div class="sheet-head"><div><div class="micro">AJOUT MANUEL</div><h2>Nouvelle s√©ance</h2></div><button class="ghost" data-close="sessionOverlay">‚úï</button></div><form id="sessionForm">
-  <div class="form-grid"><div class="field"><label>TYPE</label><select id="sessionType"><option>Cross Training</option><option>Force</option><option>Halt√©rophilie</option><option>Gymnastique</option><option>Running</option><option>Erg</option><option>Machine</option><option>Hyrox</option></select></div><div class="field"><label>DUR√âE</label><input id="durationInput" inputmode="numeric" value="45" placeholder="min" /></div></div>
-  <div class="form-grid"><div class="field"><label>DATE</label><input type="date" id="dateInput" /></div><div class="field"><label>RPE / 10</label><input id="rpeInput" inputmode="decimal" placeholder="8" /></div></div>
-  <div class="field"><label>EXERCICES / BLOCS</label><div id="exerciseList"></div><button type="button" class="add-ex" id="addExercise">Ôºã Ajouter un mouvement</button></div>
-  <div class="form-grid"><div class="field"><label>R√âSULTAT / TEMPS</label><input id="wodTime" placeholder="17:42, 5 rounds‚Ä¶" /></div><div class="field"><label>NOTES</label><input id="notesInput" placeholder="Sensations‚Ä¶" /></div></div>
-  <div class="form-actions"><button type="button" class="secondary" data-close="sessionOverlay">Annuler</button><button type="submit" class="primary">Enregistrer</button></div>
-</form></div></div>
-
-<div class="overlay" id="referenceFormOverlay" aria-hidden="true"><div class="sheet"><div class="handle"></div><div class="sheet-head"><div><div class="micro">PERFORMANCE R√âALIS√âE</div><h2>Ajouter une r√©f√©rence</h2></div><button class="ghost" data-close="referenceFormOverlay">‚úï</button></div><form id="referenceForm">
-  <div class="field"><label>MOUVEMENT / TEST</label><input id="refMovementInput" placeholder="Ex. Back Squat, 5 km, Fran‚Ä¶" /></div>
-  <div class="form-grid"><div class="field"><label>TYPE DE R√âF√âRENCE</label><select id="refMetricInput"><option>1RM</option><option>2RM</option><option>3RM</option><option>5RM</option><option>8RM</option><option>10RM</option><option>Max reps</option><option>Temps</option><option>Distance</option><option>Calories</option></select></div><div class="field"><label>VALEUR</label><input id="refValueInput" placeholder="Ex. 100 kg / 22:15" /></div></div>
-  <div class="helper-card">Les <b>e1RM</b> ne sont pas saisis comme des PR r√©els : ils seront calcul√©s et affich√©s s√©par√©ment √† partir de tes s√©ries r√©alis√©es.</div>
-  <div class="form-actions"><button type="button" class="secondary" data-close="referenceFormOverlay">Annuler</button><button type="submit" class="primary">Enregistrer</button></div>
-</form></div></div>
-
-<div class="overlay" id="measureOverlay" aria-hidden="true"><div class="sheet"><div class="handle"></div><div class="sheet-head"><div><div class="micro">PROFIL LONG TERME</div><h2>Ajouter une mesure</h2></div><button class="ghost" data-close="measureOverlay">‚úï</button></div><form id="measureForm">
-  <div class="form-grid"><div class="field"><label>MESURE</label><select id="measureType"><option>Poids</option><option>VO‚ÇÇ max</option></select></div><div class="field"><label>VALEUR</label><input id="measureValue" inputmode="decimal" placeholder="85.0" /></div></div>
-  <div class="field"><label>DATE</label><input type="date" id="measureDate" /></div>
-  <div class="form-actions"><button type="button" class="secondary" data-close="measureOverlay">Annuler</button><button type="submit" class="primary">Enregistrer</button></div>
-</form></div></div>
-
-<div class="toast" id="toast"></div>
-<script src="app.js" defer></script>
-</body>
-</html>
+  <div class="sheet tall-sheet"><div class="handle"></div><div class="sheet-head"><div><div class="micro">PROFIL √Ä COMPLCÅTER<]èèèî∞ÍY∞Í\ô[òŸ\»€€úŸZ[0ÍY\œ⁄èè]à€\‹œHô\ÿ»èï[ôH\›Hõ€€ùZ\ô[Y[ùö[‹ö\ÍYKàH]^\»ô[úŸZY€ô\àõŸ‹ô\‹⁄]ô[Y[ùèŸ]èèŸ]èèù]€à€\‹œHô⁄‹›à]KX€‹ŸOHú›YŸŸ\››ô\õ^Hè∏ß%Oÿù]€èèŸ]èè]àYHú›YŸŸ\›\›èèŸ]èèŸ]èÇèŸ]èÇÇèKKHYXàKOÇè]à€\‹œHõ›ô\õ^HàYHòY›ô\õ^Hà\öXKZY[èHùùYHèÇà]à€\‹œHú⁄Y]èè]à€\‹œHö[ôHèèŸ]èè]à€\‹œHú⁄Y]ZXYèè]èèèêZõ›]\è⁄èè]à€\‹œHô\ÿ»èê[[Y[ùHHò\ŸH]ôX»ŸH]YHHöY[ú»HòZ\ôH›HY\›\ô\ãèŸ]èèŸ]èèù]€à€\‹œHô⁄‹›à]KX€‹ŸOHòY›ô\õ^Hè∏ß%Oÿù]€èèŸ]èÇà]à€\‹œHòYZXàèÇàù]€à€\‹œHòYX⁄⁄XŸHà]KXY[ŸOHúŸ\‹⁄[€àèè‹[à€\‹œHò⁄⁄XŸKZX€€àè∏•®œ‹‹[èè‹[èèèîÍX[òŸOÿèè€X[ë^\ò⁄XŸ\À”—îK\∞ÍYx†)è‹€X[è‹‹[èè[O∏†.èŸ[Oèÿù]€èÇàù]€à€\‹œHòYX⁄⁄XŸHà]KXY[ŸOHúôYô\ô[òŸHèè‹[à€\‹œHò⁄⁄XŸKZX€€àè∏•·œ‹‹[èè‹[èèèî∞ÍY∞Í\ô[òŸH»èÿèè€X[îìK⁄õ€õÀX^ô\Àô[ò⁄X\ö¯†)è‹€X[è‹‹[èè[O∏†.èŸ[Oèÿù]€èÇàù]€à€\‹œHòYX⁄⁄XŸHà]KXY[ŸOHõYX\›\ôHèè‹[à€\‹œHò⁄⁄XŸKZX€€àè∏•„è‹‹[èè‹[èèèî⁄Y»»ì¯††àX^ÿèè€X[ë€õ∞ÍYH€‹ú‹ô[H›H\⁄[€Ÿ⁄\]YO‹€X[è‹‹[èè[O∏†.èŸ[Oèÿù]€èÇàŸ]èÇà]à€\‹œHôù]\ôK\õ›»èèù]€à€ò€X⁄œHùÿ\›
+	‘›»”—à∞Í]ùYH]ôX»8†&PTH‘	 Hèº'‰Ì»›»”—€X[òöY[ù0Ì‹€X[èÿù]€èèù]€à€ò€X⁄œHùÿ\›
+	—X›0ÍYHà∞Í]ùYH]ôX»8†&PTH‘	 Hèº'„¶˚Ó#»0ÍX‹ö\ôH€X[òöY[ù0Ì‹€X[èÿù]€èèŸ]èÇàŸ]èÇèŸ]èÇÇèKKHŸ\‹⁄[€àõ‹õHKOÇè]à€\‹œHõ›ô\õ^HàYHúŸ\‹⁄[€ì›ô\õ^Hà\öXKZY[èHùùYHèè]à€\‹œHú⁄Y][\⁄Y]èè]à€\‹œHö[ôHèèŸ]èè]à€\‹œHú⁄Y]ZXYèè]èè]à€\‹œHõZX‹õ»èêRì’UPSïQSŸ]èèèìõ›]ô[HÍX[òŸO⁄èèŸ]èèù]€à€\‹œHô⁄‹›à]KX€‹ŸOHúŸ\‹⁄[€ì›ô\õ^Hè∏ß%Oÿù]€èèŸ]èèõ‹õHYHúŸ\‹⁄[€ëõ‹õHèÇà]à€\‹œHôõ‹õKY‹öYèè]à€\‹œHôöY[èèXô[ïTO€Xô[èŸ[X›YHúŸ\‹⁄[€ï\Hèè‹[€èê‹õ‹‹»òZ[ö[ôœ€‹[€èè‹[€èëõ‹òŸO€‹[€èè‹[€èí[0Í\õ‹[YO€‹[€èè‹[€èëﬁ[[ò\›\]YO€‹[€èè‹[€èîù[õö[ôœ€‹[€èè‹[€èë\ôœ€‹[€èè‹[€èìXX⁄[ôO€‹[€èè‹[€èí\õﬁ€‹[€èè‹Ÿ[X›èŸ]èè]à€\‹œHôöY[èèXô[ëT∞‚QO€Xô[è[ú]YHô\ò][€í[ú]à[ú][ŸOHõù[Y\öX»àò[YOHçHàXŸZ€\èHõZ[ààœèŸ]èèŸ]èÇà]à€\‹œHôõ‹õKY‹öYèè]à€\‹œHôöY[èèXô[ëUO€Xô[è[ú]\OHô]HàYHô]R[ú]àœèŸ]èè]à€\‹œHôöY[èèXô[îîH»L€Xô[è[ú]YHúúR[ú]à[ú][ŸOHôX⁄[X[àXŸZ€\èHéàœèŸ]èèŸ]èÇà]à€\‹œHôöY[èèXô[ëVTê“P—T»»ì–‘œ€Xô[è]àYHô^\ò⁄\ŸS\›èèŸ]èèù]€à\OHòù]€àà€\‹œHòYY^àYHòY^\ò⁄\ŸHèªÔ"»Zõ›]\à[à[›]ô[Y[ùÿù]€èèŸ]èÇà]à€\‹œHôõ‹õKY‹öYèè]à€\‹œHôöY[èèXô[î∞‚SUSU»STœ€Xô[è[ú]YHù€Ÿ[YHàXŸZ€\èHåMŒçãHõ›[ô¯†)ààœèŸ]èè]à€\‹œHôöY[èèXô[ìì’Tœ€Xô[è[ú]YHõõ›\“[ú]àXŸZ€\èHîŸ[úÿ][€ú¯†)ààœèŸ]èèŸ]èÇà]à€\‹œHôõ‹õKXX›[€ú»èèù]€à\OHòù]€àà€\‹œHúŸX€€ô\ûHà]KX€‹ŸOHúŸ\‹⁄[€ì›ô\õ^Hèê[õù[\èÿù]€èèù]€à\OHú›XõZ]à€\‹œHúö[X\ûHèë[úôY⁄\›ô\èÿù]€èèŸ]èÇèŸõ‹õOèŸ]èèŸ]èÇÇèKKHôYô\ô[òŸHõ‹õHKOÇè]à€\‹œHõ›ô\õ^HàYHúôYô\ô[òŸQõ‹õS›ô\õ^Hà\öXKZY[èHùùYHèè]à€\‹œHú⁄Y]èè]à€\‹œHö[ôHèèŸ]èè]à€\‹œHú⁄Y]ZXYèè]èè]à€\‹œHõZX‹õ»èîTëì‘ìPSê—H∞‚PST‚QOŸ]èèèêZõ›]\à[ôH∞ÍY∞Í\ô[òŸO⁄èèŸ]èèù]€à€\‹œHô⁄‹›à]KX€‹ŸOHúôYô\ô[òŸQõ‹õS›ô\õ^Hè∏ß%Oÿù]€èèŸ]èèõ‹õHYHúôYô\ô[òŸQõ‹õHèÇà]à€\‹œHôöY[èèXô[ìS’UëSQSï»T’€Xô[è[ú]YHúôYì[›ô[Y[ù[ú]àXŸZ€\èHë^àòX⁄»‹]X]H€Kúò[∏†)ààœèŸ]èÇà]à€\‹œHôõ‹õKY‹öYèè]à€\‹œHôöY[èèXô[ïTHH∞‚Q∞‚TëSê—O€Xô[èŸ[X›YHúôYìY]öX“[ú]èè‹[€èåTìO€‹[€èè‹[€èåîìO€‹[€èè‹[€èå‘ìO€‹[€èè‹[€èçTìO€‹[€èè‹[€èéìO€‹[€èè‹[€èåLìO€‹[€èè‹[€èìX^ô\œ€‹[€èè‹[€èï[\œ€‹[€èè‹[€èë\›[òŸO€‹[€èè‹[€èêÿ[‹öY\œ€‹[€èè‹Ÿ[X›èŸ]èè]à€\‹œHôöY[èèXô[ïêSUTè€Xô[è[ú]YHúôYïò[YR[ú]àXŸZ€\èHë^àLŸ»»åéåMHàœèŸ]èèŸ]èÇà]à€\‹œHö[\ãXÿ\ôèì\»èôLTìOÿèàôH€€ù\»ÿZ\⁄\»€€[YH\»à∞ÍY[»à[»Ÿ\õ€ùÿ[›[0Í»]YôöX⁄0Í\»Í\\∞Í[Y[ù0Ë\ù\àH\»Í\öY\»∞ÍX[\ÍY\ÀèŸ]èÇà]à€\‹œHôõ‹õKXX›[€ú»èèù]€à\OHòù]€àà€\‹œHúŸX€€ô\ûHà]KX€‹ŸOHúôYô\ô[òŸQõ‹õS›ô\õ^Hèê[õù[\èÿù]€èèù]€à\OHú›XõZ]à€\‹œHúö[X\ûHèë[úôY⁄\›ô\èÿù]€èèŸ]èÇèŸõ‹õOèŸ]èèŸ]èÇÇèKKHYX\›\ôHõ‹õHKOÇè]à€\‹œHõ›ô\õ^HàYHõYX\›\ôS›ô\õ^Hà\öXKZY[èHùùYHèè]à€\‹œHú⁄Y]èè]à€\‹œHö[ôHèèŸ]èè]à€\‹œHú⁄Y]ZXYèè]èè]à€\‹œHõZX‹õ»èîì—íS”ë»TìQOŸ]èèèêZõ›]\à[ôHY\›\ôO⁄èèŸ]èèù]€à€\‹œHô⁄‹›à]KX€‹ŸOHõYX\›\ôS›ô\õ^Hè∏ß%Oÿù]€èèŸ]èèõ‹õHYHõYX\›\ôQõ‹õHèÇà]à€\‹œHôõ‹õKY‹öYèè]à€\‹œHôöY[èèXô[ìQT’TëO€Xô[èŸ[X›YHõYX\›\ôU\Hèè‹[€èî⁄Yœ€‹[€èè‹[€èïì¯††àX^€‹[€èè‹Ÿ[X›èŸ]èè]à€\‹œHôöY[èèXô[ïêSUTè€Xô[è[ú]YHõYX\›\ôUò[YHà[ú][ŸOHôX⁄[X[àXŸZ€\èHéKåàœèŸ]èèŸ]èÇà]à€\‹œHôöY[èèXô[ëUO€Xô[è[ú]\OHô]HàYHõYX\›\ôQ]HàœèŸ]èÇà]à€\‹œHôõ‹õKXX›[€ú»èèù]€à\OHòù]€àà€\‹œHúŸX€€ô\ûHà]KX€‹ŸOHõYX\›\ôS›ô\õ^Hèê[õù[\èÿù]€èèù]€à\OHú›XõZ]à€\‹œHúö[X\ûHèë[úôY⁄\›ô\èÿù]€èèŸ]èÇèŸõ‹õOèŸ]èèŸ]èÇÇè]à€\‹œHùÿ\›àYHùÿ\›èèŸ]èÇèÿ‹ö\‹òœHò\öú»àYô\èè‹ÿ‹ö\ÇèÿõŸOÇè⁄[Ç
