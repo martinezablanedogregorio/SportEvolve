@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#090b0f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>SportEvolve — V0.2 UX</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="mobile-polish.css" />
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="toprow">
+      <button class="brand" data-nav="dashboard" aria-label="Tableau de bord">SPORT<span>EVOLVE</span><em>V0.2</em></button>
+      <button class="profile-pill" id="profileBtn" aria-haspopup="true" aria-expanded="false">
+        <span class="avatar" id="avatar">GM</span><span id="profileName">Gregorio</span><span class="chev">⌄</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="profile-menu" id="profileMenu">
+    <button class="profile-option active" data-profile="gregorio"><span class="avatar">GM</span><span><b>Gregorio</b><small>Profil actif</small></span></button>
+    <button class="profile-option" data-profile="partner"><span class="avatar">MF</span><span><b>Ma femme</b><small>Deuxième athlète</small></span></button>
+    <div class="menu-sep"></div>
+    <button class="profile-option" id="viewProfile"><span class="avatar muted">◎</span><span><b>Profil & données</b><small>Long terme</small></span></button>
+  </div>
+
+  <main>
+    <section class="page active" id="dashboardPage">
+      <div class="hero compact-hero">
+        <div class="eyebrow" id="todayLabel">Aujourd'hui</div>
+        <h1 id="dashboardTitle">Voici où en est ta semaine.</h1>
+        <p>Le présent : cycle, prochaine séance, charge récente et ce qui évolue maintenant.</p>
+      </div>
+
+      <div class="status-strip">
+        <div><span>Semaine</span><b id="weekNumber">—</b></div>
+        <div><span>Séances</span><b id="weekSessionCount">—</b></div>
+        <div><span>Charge</span><b id="weekLoad">Modérée</b></div>
+      </div>
+
+      <div class="section first-section">
+        <div class="section-head"><h2>Cycle actuel</h2><span class="soft-badge">EXEMPLE UX</span></div>
+        <div class="card cycle-card">
+          <div class="cycle-top"><div><div class="micro">FORCE & ENGINE</div><h3>Cycle 8 semaines</h3></div><div class="ring"><span>5/8</span></div></div>
+          <p>Monter la force tout en maintenant la capacité à tenir un effort mixte.</p>
+          <div class="progressbar"><i style="width:62%"></i></div>
+          <div class="split-caption"><span>Semaine 5</span><span>62 % du cycle</span></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2>À venir</h2><button class="text-btn" data-nav="program">Programme</button></div>
+        <div class="card next-card" id="nextWorkoutCard">
+          <div class="next-date"><span>PROCHAINE</span><b>Exemple</b></div>
+          <div class="next-main"><div class="micro">COACH · EXEMPLE UX</div><h3>Lower strength + Metcon</h3><p>Back Squat 5×5 · RDL 4×8 · 12' AMRAP</p></div>
+          <button class="icon-btn" onclick="toast('Détail de séance — à affiner avec tes retours')">›</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2>Cette semaine</h2><button class="text-btn" data-nav="sessions">Tout voir</button></div>
+        <div class="week-grid" id="weekGrid"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2>Charge musculaire</h2><span class="eyebrow">7 jours</span></div>
+        <div class="card muscle-card">
+          <div class="muscle-wrap">
+            <div class="bodymap"><svg class="body-svg" viewBox="0 0 120 210" aria-hidden="true"><circle cx="60" cy="17" r="13" class="body-base"/><rect x="49" y="30" width="22" height="26" rx="10" class="hot-mid"/><path d="M43 40 Q60 30 77 40 L82 78 Q60 87 38 78Z" class="hot-mid"/><rect x="28" y="41" width="12" height="53" rx="6" class="hot-high" transform="rotate(8 34 67)"/><rect x="80" y="41" width="12" height="53" rx="6" class="hot-high" transform="rotate(-8 86 67)"/><rect x="44" y="78" width="32" height="34" rx="10" class="hot-mid"/><rect x="39" y="107" width="18" height="59" rx="9" class="hot-high" transform="rotate(2 48 136)"/><rect x="63" y="107" width="18" height="59" rx="9" class="hot-high" transform="rotate(-2 72 136)"/><rect x="41" y="161" width="15" height="39" rx="7" class="hot-low"/><rect x="64" y="161" width="15" height="39" rx="7" class="hot-low"/></svg></div>
+            <div class="muscle-list" id="muscleList"></div>
+          </div>
+          <div class="data-note">Aperçu UX : le calcul réel viendra des mouvements enregistrés.</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2>Progression récente</h2><button class="text-btn" data-nav="references">Références</button></div>
+        <div class="insight-stack" id="recentProgress"></div>
+      </div>
+    </section>
+
+    <section class="page" id="referencesPage">
+      <div class="hero compact-hero">
+        <div class="eyebrow">Références</div>
+        <h1>Ce dont tu es capable.</h1>
+        <p>Un mouvement = une carte. Le détail des RM, chronos et historiques n'apparaît qu'au clic.</p>
+      </div>
+
+      <div class="reference-summary card">
+        <div><span>Renseignées</span><b id="filledRefs">—</b></div><div><span>À compléter</span><b id="missingRefs">—</b></div><div><span>Catégories</span><b>9</b></div>
+      </div>
+
+      <div class="tabs scroll-tabs" id="referenceTabs">
+        <button class="tabchip active" data-cat="all">Tout</button>
+        <button class="tabchip" data-cat="force">Force</button>
+        <button class="tabchip" data-cat="haltero">Haltéro</button>
+        <button class="tabchip" data-cat="gym">Gym</button>
+        <button class="tabchip" data-cat="run">Run</button>
+        <button class="tabchip" data-cat="erg">Ergs</button>
+        <button class="tabchip" data-cat="machine">Machines</button>
+        <button class="tabchip" data-cat="benchmark">WODs</button>
+        <button class="tabchip" data-cat="hyrox">Hyrox</button>
+      </div>
+
+      <div class="reference-list" id="referenceList"></div>
+      <button class="secondary wide" id="suggestRefsBtn">＋ Voir les références conseillées</button>
+    </section>
+
+    <section class="page" id="sessionsPage">
+      <div class="hero compact-hero">
+        <div class="eyebrow">Sessions</div>
+        <h1>Ce que tu as réellement fait.</h1>
+        <p>Le journal brut : chaque séance nourrit les références, tendances et analyses.</p>
+      </div>
+      <button class="primary wide" id="addSessionSessions">＋ Ajouter une séance</button>
+      <div class="tabs scroll-tabs" id="sessionTabs"><button class="tabchip active" data-sessionfilter="all">Toutes</button><button class="tabchip" data-sessionfilter="week">Cette semaine</button><button class="tabchip" data-sessionfilter="strength">Force</button><button class="tabchip" data-sessionfilter="run">Run</button><button class="tabchip" data-sessionfilter="wod">WOD / Hyrox</button></div>
+      <div class="timeline" id="timeline"></div>
+    </section>
+
+    <section class="page" id="programPage">
+      <div class="hero compact-hero">
+        <div class="eyebrow">Programme</div>
+        <h1>Prévu → réalisé.</h1>
+        <p>Le coach humain reste la référence. SportEvolve conserve le plan et mesure son exécution.</p>
+      </div>
+      <div class="card callout-card"><div><div class="micro">EXEMPLE UX</div><h3>Force & Engine · 8 semaines</h3><p>Cette zone sera alimentée par le vrai programme de ton coach.</p></div><span class="soft-badge">5 / 8</span></div>
+      <div class="section"><div class="section-head"><h2>Semaine 5</h2><span class="eyebrow">3 séances prévues</span></div><div class="program-list">
+        <button class="card program-session done"><span class="program-day">LUN</span><span><b>Upper strength</b><small>Réalisée · 52 min</small></span><em>✓</em></button>
+        <button class="card program-session next"><span class="program-day">JEU</span><span><b>Lower strength + Metcon</b><small>Prochaine · exemple</small></span><em>›</em></button>
+        <button class="card program-session"><span class="program-day">SAM</span><span><b>Engine / Gymnastique</b><small>À venir · exemple</small></span><em>›</em></button>
+      </div></div>
+      <div class="section"><div class="section-head"><h2>Coach virtuel</h2><span class="soft-badge">PLUS TARD</span></div><div class="card virtual-coach"><div class="coach-orb">✦</div><div><h3>Besoin d'une séance ponctuelle ?</h3><p>À terme : proposition selon temps disponible, équipement, charge récente et besoins. Cette fonction restera secondaire.</p></div><button class="secondary" onclick="toast('Coach virtuel prévu après validation UX + API')">Proposer une séance</button></div></div>
+    </section>
+
+    <section class="page" id="profilePage">
+      <div class="hero compact-hero">
+        <div class="eyebrow">Profil & données</div>
+        <h1>Le long terme.</h1>
+        <p>Identité sportive, santé, poids, VO₂ max, objectifs, équipement et évolution globale.</p>
+      </div>
+      <div class="card identity-card"><div class="big-avatar" id="bigAvatar">GM</div><div class="identity-main"><h2 id="profileCardName">Gregorio</h2><p id="profileDescriptor">37 ans · 1,86 m · 85 kg</p></div><button class="icon-btn" onclick="toast('Édition du profil dans une prochaine itération')">›</button></div>
+
+      <div class="section"><div class="section-head"><h2>Données corporelles</h2><span class="eyebrow">Historique long terme</span></div><div class="data-grid">
+        <button class="card data-tile" id="weightTile"><span>Poids</span><b id="profileWeight">85,0 kg</b><small>Voir l'historique ›</small></button>
+        <button class="card data-tile" id="vo2Tile"><span>VO₂ max</span><b id="profileVo2">À renseigner</b><small>Voir l'historique ›</small></button>
+        <button class="card data-tile"><span>Taille</span><b id="profileHeight">1,86 m</b><small>Donnée profil</small></button>
+        <button class="card data-tile"><span>Âge</span><b id="profileAge">37 ans</b><small>Calcul automatique</small></button>
+      </div></div>
+
+      <div class="section"><div class="section-head"><h2>Profil sportif</h2><span class="soft-badge">À CALCULER</span></div><div class="card sport-profile" id="sportProfile"></div></div>
+
+      <div class="section"><div class="section-head"><h2>Objectifs & contexte</h2></div><div class="card settings-list">
+        <button class="setting-row"><span><b>Objectifs</b><small>Force, composition corporelle, endurance…</small></span><em>Configurer ›</em></button>
+        <button class="setting-row"><span><b>Équipement disponible</b><small>Home gym, box, salle, extérieur</small></span><em>Configurer ›</em></button>
+        <button class="setting-row"><span><b>Santé & limitations</b><small>Données utiles à contextualiser</small></span><em>Configurer ›</em></button>
+        <button class="setting-row"><span><b>Préférences</b><small>Unités, affichage, confidentialité</small></span><em>Configurer ›</em></button>
+      </div></div>
+    </section>
+  </main>
+
+  <nav class="nav">
+    <button class="nav-btn active" data-nav="dashboard"><span class="nav-icon">⌂</span><span>Tableau</span></button>
+    <button class="nav-btn" data-nav="references"><span class="nav-icon">◇</span><span>Réfs</span></button>
+    <button class="nav-btn add-nav" id="addMain"><span class="plus-ring">+</span><span>Ajouter</span></button>
+    <button class="nav-btn" data-nav="sessions"><span class="nav-icon">≡</span><span>Sessions</span></button>
+    <button class="nav-btn" data-nav="program"><span class="nav-icon">▣</span><span>Programme</span></button>
+  </nav>
+</div>
+
+<div class="overlay" id="referenceOverlay" aria-hidden="true">
+  <div class="sheet detail-sheet">
+    <div class="handle"></div>
+    <div class="sheet-head sticky-sheet-head"><div><div class="micro" id="refDetailCat">FORCE</div><h2 id="refDetailName">Back Squat</h2></div><button class="ghost" data-close="referenceOverlay">✕</button></div>
+    <div id="referenceDetailContent"></div>
+  </div>
+</div>
+
+<div class="overlay" id="suggestOverlay" aria-hidden="true">
+  <div class="sheet tall-sheet"><div class="handle"></div><div class="sheet-head"><div><div class="micro">PROFIL À COMPLÉTER</div><h2>Références conseillées</h2><div class="desc">Une liste volontairement priorisée. Tu peux les renseigner progressivement.</div></div><button class="ghost" data-close="suggestOverlay">✕</button></div><div id="suggestList"></div></div>
+</div>
+
+<div class="overlay" id="addOverlay" aria-hidden="true">
+  <div class="sheet"><div class="handle"></div><div class="sheet-head"><div><h2>Ajouter</h2><div class="desc">Alimente la base avec ce que tu viens de faire ou mesurer.</div></div><button class="ghost" data-close="addOverlay">✕</button></div>
+    <div class="add-hub">
+      <button class="add-choice" data-addmode="session"><span class="choice-icon">▣</span><span><b>Séance</b><small>Exercices, WOD, RPE, durée…</small></span><em>›</em></button>
+      <button class="add-choice" data-addmode="reference"><span class="choice-icon">◇</span><span><b>Référence / PR</b><small>RM, chrono, max reps, benchmark…</small></span><em>›</em></button>
+      <button class="add-choice" data-addmode="measure"><span class="choice-icon">◎</span><span><b>Poids / VO₂ max</b><small>Donnée corporelle ou physiologique</small></span><em>›</em></button>
+    </div>
+    <div class="future-row"><button onclick="toast('Photo WOD : prévue avec l’API GPT')">📷 Photo WOD <small>bientôt</small></button><button onclick="toast('Dictée : prévue avec l’API GPT')">🎙️ Décrire <small>bientôt</small></button></div>
+  </div>
+</div>
+
+<div class="overlay" id="sessionOverlay" aria-hidden="true"><div class="sheet tall-sheet"><div class="handle"></div><div class="sheet-head"><div><div class="micro">AJOUT MANUEL</div><h2>Nouvelle séance</h2></div><button class="ghost" data-close="sessionOverlay">✕</button></div><form id="sessionForm">
+  <div class="form-grid"><div class="field"><label>TYPE</label><select id="sessionType"><option>Cross Training</option><option>Force</option><option>Haltérophilie</option><option>Gymnastique</option><option>Running</option><option>Erg</option><option>Machine</option><option>Hyrox</option></select></div><div class="field"><label>DURÉE</label><input id="durationInput" inputmode="numeric" value="45" placeholder="min" /></div></div>
+  <div class="form-grid"><div class="field"><label>DATE</label><input type="date" id="dateInput" /></div><div class="field"><label>RPE / 10</label><input id="rpeInput" inputmode="decimal" placeholder="8" /></div></div>
+  <div class="field"><label>EXERCICES / BLOCS</label><div id="exerciseList"></div><button type="button" class="add-ex" id="addExercise">＋ Ajouter un mouvement</button></div>
+  <div class="form-grid"><div class="field"><label>RÉSULTAT / TEMPS</label><input id="wodTime" placeholder="17:42, 5 rounds…" /></div><div class="field"><label>NOTES</label><input id="notesInput" placeholder="Sensations…" /></div></div>
+  <div class="form-actions"><button type="button" class="secondary" data-close="sessionOverlay">Annuler</button><button type="submit" class="primary">Enregistrer</button></div>
+</form></div></div>
+
+<div class="overlay" id="referenceFormOverlay" aria-hidden="true"><div class="sheet"><div class="handle"></div><div class="sheet-head"><div><div class="micro">PERFORMANCE RÉALISÉE</div><h2>Ajouter une référence</h2></div><button class="ghost" data-close="referenceFormOverlay">✕</button></div><form id="referenceForm">
+  <div class="field"><label>MOUVEMENT / TEST</label><input id="refMovementInput" placeholder="Ex. Back Squat, 5 km, Fran…" /></div>
+  <div class="form-grid"><div class="field"><label>TYPE DE RÉFÉRENCE</label><select id="refMetricInput"><option>1RM</option><option>2RM</option><option>3RM</option><option>5RM</option><option>8RM</option><option>10RM</option><option>Max reps</option><option>Temps</option><option>Distance</option><option>Calories</option></select></div><div class="field"><label>VALEUR</label><input id="refValueInput" placeholder="Ex. 100 kg / 22:15" /></div></div>
+  <div class="helper-card">Les <b>e1RM</b> ne sont pas saisis comme des PR réels : ils seront calculés et affichés séparément à partir de tes séries réalisées.</div>
+  <div class="form-actions"><button type="button" class="secondary" data-close="referenceFormOverlay">Annuler</button><button type="submit" class="primary">Enregistrer</button></div>
+</form></div></div>
+
+<div class="overlay" id="measureOverlay" aria-hidden="true"><div class="sheet"><div class="handle"></div><div class="sheet-head"><div><div class="micro">PROFIL LONG TERME</div><h2>Ajouter une mesure</h2></div><button class="ghost" data-close="measureOverlay">✕</button></div><form id="measureForm">
+  <div class="form-grid"><div class="field"><label>MESURE</label><select id="measureType"><option>Poids</option><option>VO₂ max</option></select></div><div class="field"><label>VALEUR</label><input id="measureValue" inputmode="decimal" placeholder="85.0" /></div></div>
+  <div class="field"><label>DATE</label><input type="date" id="measureDate" /></div>
+  <div class="form-actions"><button type="button" class="secondary" data-close="measureOverlay">Annuler</button><button type="submit" class="primary">Enregistrer</button></div>
+</form></div></div>
+
+<div class="toast" id="toast"></div>
+<script src="app.js" defer></script>
+</body>
+</html>
