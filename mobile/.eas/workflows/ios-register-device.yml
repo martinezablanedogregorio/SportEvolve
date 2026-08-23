@@ -8,3 +8,5 @@ jobs:
   register_device:
     name: Register iPhone for SportEvolve
     type: apple-device-registration-request
+    params:
+      apple_team_identifier: A4T7RHYQXQ
