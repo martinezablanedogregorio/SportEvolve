@@ -1,0 +1,10 @@
+name: SportEvolve iOS Device Registration
+
+on:
+  push:
+    branches: ['setup/ios-device-registration']
+
+jobs:
+  register_device:
+    name: Register iPhone for SportEvolve
+    type: apple-device-registration-request
