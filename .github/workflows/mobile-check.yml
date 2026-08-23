@@ -38,5 +38,8 @@ jobs:
       - name: TypeScript check
         run: npx tsc --noEmit
 
-      - name: Expo bundle smoke test
-        run: npx expo export --platform web --output-dir dist-check
+      - name: Android bundle smoke test
+        run: npx expo export --platform android --output-dir dist-android
+
+      - name: iOS bundle smoke test
+        run: npx expo export --platform ios --output-dir dist-ios
