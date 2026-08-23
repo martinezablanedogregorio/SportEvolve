@@ -3,22 +3,16 @@ import 'expo-sqlite/localStorage/install';
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const supabasePublishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+// Supabase publishable credentials are designed to be embedded in client apps.
+// RLS remains the security boundary; never place a service-role/secret key here.
+const supabaseUrl = 'https://ilbbxjndpccngmxrgiby.supabase.co';
+const supabasePublishableKey = 'sb_publishable_tSJZjJlVsUf2cK7jeg0PtQ_1Qa0aX1p';
 
-if (!supabaseUrl || !supabasePublishableKey) {
-  console.warn('SportEvolve: Supabase environment variables are not configured yet.');
-}
-
-export const supabase = createClient(
-  supabaseUrl ?? 'https://placeholder.invalid',
-  supabasePublishableKey ?? 'placeholder',
-  {
-    auth: {
-      storage: localStorage,
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: false,
-    },
-  }
-);
+export const supabase = createClient(supabaseUrl, supabasePublishableKey, {
+  auth: {
+    storage: localStorage,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
+  },
+});
