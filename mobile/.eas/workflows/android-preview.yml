@@ -1,0 +1,14 @@
+name: SportEvolve Android Preview V1
+
+on:
+  push:
+    branches: ['build/android-preview-v1']
+
+jobs:
+  build_android:
+    name: Build Android Preview APK
+    type: build
+    environment: preview
+    params:
+      platform: android
+      profile: preview
