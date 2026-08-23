@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "SportEvolve",
+    "slug": "sportevolve",
+    "owner": "martinezablanedo-team",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "sportevolve",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "bundleIdentifier": "com.martinezablanedo.sportevolve",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.martinezablanedo.sportevolve",
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2dbdd24a-635a-4cf9-8b13-95f7572a2fe5"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2dbdd24a-635a-4cf9-8b13-95f7572a2fe5"
+      }
+    }
+  }
+}
