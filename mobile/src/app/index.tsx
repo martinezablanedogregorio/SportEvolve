@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -65,6 +66,7 @@ export default function HomeScreen() {
   const [authReady, setAuthReady] = useState(false);
   const [athletes, setAthletes] = useState<AthleteSummary[]>([]);
   const [activeAthleteId, setActiveAthleteId] = useState<string | null>(null);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [dashboard, setDashboard] = useState<DashboardData>(EMPTY_DASHBOARD);
   const [loadingData, setLoadingData] = useState(false);
   const [bootstrapError, setBootstrapError] = useState<string | null>(null);
@@ -102,8 +104,11 @@ export default function HomeScreen() {
   async function bootstrapAccount(currentSession: Session) {
     setLoadingData(true);
     setBootstrapError(null);
+
     const displayName = currentSession.user.email?.split('@')[0] ?? null;
-    const { data, error } = await supabase.rpc('bootstrap_sportevolve_account', { p_display_name: displayName });
+    const { data, error } = await supabase.rpc('bootstrap_sportevolve_account', {
+      p_display_name: displayName,
+    });
 
     if (error) {
       setBootstrapError(error.message);
@@ -113,6 +118,7 @@ export default function HomeScreen() {
 
     const loaded = (data ?? []) as AthleteSummary[];
     setAthletes(loaded);
+
     const saved = localStorage.getItem('sportevolve.activeAthleteId');
     const selected = loaded.find((item) => item.athlete_id === saved) ?? loaded[0] ?? null;
     setActiveAthleteId(selected?.athlete_id ?? null);
@@ -121,6 +127,7 @@ export default function HomeScreen() {
 
   async function loadDashboard(athleteId: string) {
     setLoadingData(true);
+
     const today = new Date().toISOString().slice(0, 10);
     const now = new Date().toISOString();
     const weekStart = startOfWeek(new Date()).toISOString();
@@ -168,7 +175,15 @@ export default function HomeScreen() {
         .limit(3),
     ]);
 
-    const firstError = [sessionsResult.error, referencesResult.error, weightResult.error, nutritionResult.error, plannedResult.error, recentResult.error].find(Boolean);
+    const firstError = [
+      sessionsResult.error,
+      referencesResult.error,
+      weightResult.error,
+      nutritionResult.error,
+      plannedResult.error,
+      recentResult.error,
+    ].find(Boolean);
+
     if (firstError) console.warn('SportEvolve dashboard load:', firstError.message);
 
     setDashboard({
@@ -177,8 +192,9 @@ export default function HomeScreen() {
       latestWeight: weightResult.data?.value == null ? null : Number(weightResult.data.value),
       nutrition: nutritionResult.data as NutritionTarget | null,
       nextSession: plannedResult.data as PlannedSession | null,
-      recentSessions: ((recentResult.data ?? []) as unknown as RecentSession[]),
+      recentSessions: (recentResult.data ?? []) as unknown as RecentSession[],
     });
+
     setLoadingData(false);
   }
 
@@ -188,127 +204,159 @@ export default function HomeScreen() {
   const visibleAthletes = athletes.slice(0, 2);
   const activeAthlete = athletes.find((item) => item.athlete_id === activeAthleteId) ?? athletes[0];
 
+  function selectAthlete(athleteId: string) {
+    setActiveAthleteId(athleteId);
+    setProfileMenuOpen(false);
+  }
+
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={styles.flex}>
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <View style={styles.topbar}>
-            <View>
-              <Text style={styles.brand}>SPORT<Text style={styles.brandAccent}>EVOLVE</Text></Text>
-              <Text style={styles.version}>V1 · TRAIN → MEASURE → PROGRESS</Text>
-            </View>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.topbar}>
+          <View style={styles.brandBlock}>
+            <Text style={styles.brand}>SPORT<Text style={styles.brandAccent}>EVOLVE</Text></Text>
+            <Text style={styles.version}>V1 · TRAIN → MEASURE → PROGRESS</Text>
+          </View>
+
+          <View style={styles.topActions}>
+            {activeAthlete ? (
+              <Pressable onPress={() => setProfileMenuOpen(true)} style={styles.activeProfileButton}>
+                <View style={styles.avatarMini}>
+                  <Text style={styles.avatarMiniText}>{activeAthlete.display_name.slice(0, 1).toUpperCase()}</Text>
+                </View>
+                <Text numberOfLines={1} style={styles.activeProfileText}>{activeAthlete.display_name}</Text>
+                <Text style={styles.chevron}>⌄</Text>
+              </Pressable>
+            ) : null}
+
             <Pressable onPress={() => void supabase.auth.signOut()} style={styles.logoutButton}>
               <Text style={styles.logoutText}>Sortir</Text>
             </Pressable>
           </View>
+        </View>
 
-          {bootstrapError ? (
-            <View style={styles.errorCard}>
-              <Text style={styles.errorTitle}>Connexion à la mémoire impossible</Text>
-              <Text style={styles.errorText}>{bootstrapError}</Text>
-              <Pressable onPress={() => session && void bootstrapAccount(session)} style={styles.primarySmall}>
-                <Text style={styles.primarySmallText}>Réessayer</Text>
-              </Pressable>
-            </View>
-          ) : null}
-
-          <View style={styles.profileSwitch}>
-            {visibleAthletes.map((item) => {
-              const selected = item.athlete_id === activeAthleteId;
-              return (
-                <Pressable key={item.athlete_id} onPress={() => setActiveAthleteId(item.athlete_id)} style={[styles.profileChip, selected && styles.profileChipActive]}>
-                  <Text style={[styles.profileChipText, selected && styles.profileChipTextActive]}>{item.display_name}</Text>
-                </Pressable>
-              );
-            })}
-          </View>
-
-          <Text style={styles.eyebrow}>TABLEAU DE BORD</Text>
-          <Text style={styles.title}>{activeAthlete ? `Bonjour ${activeAthlete.display_name}.` : 'Bienvenue.'}</Text>
-          <Text style={styles.subtitle}>Ta semaine, ta prochaine séance et les dernières données réellement enregistrées.</Text>
-
-          {loadingData && athletes.length === 0 ? <ActivityIndicator color="#b7d400" style={{ marginTop: 24 }} /> : null}
-
-          <View style={styles.statusRow}>
-            <Status label="Cette semaine" value={String(dashboard.sessionsWeek)} />
-            <Status label="Références" value={String(dashboard.references)} />
-            <Status label="Poids" value={dashboard.latestWeight ? `${formatNumber(dashboard.latestWeight)} kg` : '—'} />
-          </View>
-
-          <View style={styles.quickAddCard}>
-            <View style={styles.flex}>
-              <Text style={styles.quickTag}>ENREGISTRER</Text>
-              <Text style={styles.quickTitle}>Tu viens de t’entraîner ?</Text>
-              <Text style={styles.quickText}>Ajoute la séance maintenant. Les références et e1RM seront recalculés à partir des séries enregistrées.</Text>
-            </View>
-            <Pressable onPress={() => router.push({ pathname: '/add', params: { athleteId: activeAthleteId ?? '' } })} style={styles.quickPlus}>
-              <Text style={styles.quickPlusText}>＋</Text>
+        {bootstrapError ? (
+          <View style={styles.errorCard}>
+            <Text style={styles.errorTitle}>Connexion à la mémoire impossible</Text>
+            <Text style={styles.errorText}>{bootstrapError}</Text>
+            <Pressable onPress={() => session && void bootstrapAccount(session)} style={styles.primarySmall}>
+              <Text style={styles.primarySmallText}>Réessayer</Text>
             </Pressable>
           </View>
+        ) : null}
 
-          <Text style={styles.sectionTitle}>Nutrition aujourd’hui</Text>
-          <View style={styles.nutritionCard}>
-            {dashboard.nutrition ? (
-              <>
-                <Text style={styles.nutritionMode}>{formatDayType(dashboard.nutrition.day_type)}</Text>
-                <Text style={styles.kcal}>{dashboard.nutrition.calories}<Text style={styles.kcalUnit}> kcal</Text></Text>
-                <View style={styles.macroRow}>
-                  <Macro label="Protéines" value={`${dashboard.nutrition.protein_g} g`} />
-                  <Macro label="Glucides" value={`${dashboard.nutrition.carbs_g} g`} />
-                  <Macro label="Lipides" value={`${dashboard.nutrition.fat_g} g`} />
-                </View>
-              </>
-            ) : (
-              <>
-                <Text style={styles.nutritionMode}>MOTEUR NUTRITION V1</Text>
-                <Text style={styles.emptyTitle}>Profil à compléter</Text>
-                <Text style={styles.helper}>Pas de cible artificielle : elle apparaîtra quand les données nécessaires seront réellement renseignées.</Text>
-              </>
-            )}
-          </View>
+        <Text style={styles.eyebrow}>TABLEAU DE BORD</Text>
+        <Text style={styles.title}>{activeAthlete ? `Bonjour ${activeAthlete.display_name}.` : 'Bienvenue.'}</Text>
+        <Text style={styles.subtitle}>Ta semaine, ta prochaine séance et les dernières données réellement enregistrées.</Text>
 
-          <Text style={styles.sectionTitle}>Prochaine séance</Text>
-          <View style={styles.card}>
-            <Text style={styles.cardTag}>PROGRAMME</Text>
-            <Text style={styles.cardTitle}>{dashboard.nextSession?.title ?? 'Aucune séance planifiée'}</Text>
-            <Text style={styles.cardText}>
-              {dashboard.nextSession
-                ? `${sessionTypeLabel(dashboard.nextSession.session_type)}${dashboard.nextSession.scheduled_at ? ` · ${formatDateTime(dashboard.nextSession.scheduled_at)}` : ''}`
-                : 'Quand une séance sera programmée, elle apparaîtra ici automatiquement.'}
-            </Text>
-          </View>
+        {loadingData && athletes.length === 0 ? <ActivityIndicator color="#b7d400" style={styles.loadingInline} /> : null}
 
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Dernières séances</Text>
-            <Pressable onPress={() => router.push('/sessions')}><Text style={styles.linkText}>Tout voir →</Text></Pressable>
-          </View>
-          {dashboard.recentSessions.length ? dashboard.recentSessions.map((item) => (
-            <View key={item.id} style={styles.recentCard}>
-              <View style={styles.flex}>
-                <Text style={styles.cardTag}>{sessionTypeLabel(item.session_type)}{item.shared ? ' · DUO' : ''}</Text>
-                <Text style={styles.recentTitle}>{item.title || 'Séance'}</Text>
-                <Text style={styles.cardText}>{formatDateTime(item.started_at)}{item.duration_minutes != null ? ` · ${item.duration_minutes} min` : ''}</Text>
-              </View>
-            </View>
-          )) : (
-            <View style={styles.card}><Text style={styles.cardText}>Aucune séance enregistrée pour l’instant.</Text></View>
-          )}
-
-          <View style={styles.foundation}>
-            <Text style={styles.foundationTitle}>{loadingData ? 'Synchronisation…' : 'Supabase synchronisé ✓'}</Text>
-            <Text style={styles.foundationText}>Les deux profils visibles sont Gregorio et Morgane. La structure reste multi-athlète pour permettre un troisième profil plus tard sans refonte.</Text>
-          </View>
-        </ScrollView>
-
-        <View style={styles.bottomNav}>
-          <View style={styles.navSide}><Text style={styles.navActive}>Tableau</Text></View>
-          <Pressable onPress={() => router.push({ pathname: '/add', params: { athleteId: activeAthleteId ?? '' } })} style={styles.centralAdd}>
-            <Text style={styles.centralPlus}>＋</Text>
-            <Text style={styles.centralLabel}>Ajouter</Text>
-          </Pressable>
-          <Pressable onPress={() => router.push('/sessions')} style={styles.navSide}><Text style={styles.navText}>Sessions</Text></Pressable>
+        <View style={styles.statusRow}>
+          <Status label="Cette semaine" value={String(dashboard.sessionsWeek)} />
+          <Status label="Références" value={String(dashboard.references)} />
+          <Status label="Poids" value={dashboard.latestWeight ? `${formatNumber(dashboard.latestWeight)} kg` : '—'} />
         </View>
-      </View>
+
+        <View style={styles.quickAddCard}>
+          <View style={styles.flex}>
+            <Text style={styles.quickTag}>ENREGISTRER</Text>
+            <Text style={styles.quickTitle}>Tu viens de t’entraîner ?</Text>
+            <Text style={styles.quickText}>Ajoute la séance maintenant. Les références et e1RM seront recalculés à partir des séries enregistrées.</Text>
+          </View>
+          <Pressable onPress={() => router.push({ pathname: '/add', params: { athleteId: activeAthleteId ?? '' } })} style={styles.quickPlus}>
+            <Text style={styles.quickPlusText}>＋</Text>
+          </Pressable>
+        </View>
+
+        <Text style={styles.sectionTitle}>Nutrition aujourd’hui</Text>
+        <View style={styles.nutritionCard}>
+          {dashboard.nutrition ? (
+            <>
+              <Text style={styles.nutritionMode}>{formatDayType(dashboard.nutrition.day_type)}</Text>
+              <Text style={styles.kcal}>{dashboard.nutrition.calories}<Text style={styles.kcalUnit}> kcal</Text></Text>
+              <View style={styles.macroRow}>
+                <Macro label="Protéines" value={`${dashboard.nutrition.protein_g} g`} />
+                <Macro label="Glucides" value={`${dashboard.nutrition.carbs_g} g`} />
+                <Macro label="Lipides" value={`${dashboard.nutrition.fat_g} g`} />
+              </View>
+            </>
+          ) : (
+            <>
+              <Text style={styles.nutritionMode}>MOTEUR NUTRITION V1</Text>
+              <Text style={styles.emptyTitle}>Profil à compléter</Text>
+              <Text style={styles.helper}>Pas de cible artificielle : elle apparaîtra quand les données nécessaires seront réellement renseignées.</Text>
+            </>
+          )}
+        </View>
+
+        <Text style={styles.sectionTitle}>Prochaine séance</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTag}>PROGRAMME</Text>
+          <Text style={styles.cardTitle}>{dashboard.nextSession?.title ?? 'Aucune séance planifiée'}</Text>
+          <Text style={styles.cardText}>
+            {dashboard.nextSession
+              ? `${sessionTypeLabel(dashboard.nextSession.session_type)}${dashboard.nextSession.scheduled_at ? ` · ${formatDateTime(dashboard.nextSession.scheduled_at)}` : ''}`
+              : 'Quand une séance sera programmée, elle apparaîtra ici automatiquement.'}
+          </Text>
+        </View>
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Dernières séances</Text>
+          <Pressable onPress={() => router.push('/sessions')}>
+            <Text style={styles.linkText}>Tout voir →</Text>
+          </Pressable>
+        </View>
+
+        {dashboard.recentSessions.length ? dashboard.recentSessions.map((item) => (
+          <View key={item.id} style={styles.recentCard}>
+            <Text style={styles.cardTag}>{sessionTypeLabel(item.session_type)}{item.shared ? ' · DUO' : ''}</Text>
+            <Text style={styles.recentTitle}>{item.title || 'Séance'}</Text>
+            <Text style={styles.cardText}>{formatDateTime(item.started_at)}{item.duration_minutes != null ? ` · ${item.duration_minutes} min` : ''}</Text>
+          </View>
+        )) : (
+          <View style={styles.card}>
+            <Text style={styles.cardText}>Aucune séance enregistrée pour l’instant.</Text>
+          </View>
+        )}
+
+        <View style={styles.foundation}>
+          <Text style={styles.foundationTitle}>{loadingData ? 'Synchronisation…' : 'Supabase synchronisé ✓'}</Text>
+          <Text style={styles.foundationText}>Le profil actif reste mémorisé sur ce téléphone. Les autres athlètes restent accessibles uniquement quand tu ouvres le sélecteur.</Text>
+        </View>
+      </ScrollView>
+
+      <Modal visible={profileMenuOpen} transparent animationType="fade" onRequestClose={() => setProfileMenuOpen(false)}>
+        <View style={styles.modalRoot}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={() => setProfileMenuOpen(false)} />
+          <View style={styles.profileModal}>
+            <Text style={styles.modalEyebrow}>ATHLÈTE ACTIF</Text>
+            <Text style={styles.modalTitle}>Changer de profil</Text>
+            <Text style={styles.modalText}>Le Dashboard, les références et les mesures s’afficheront pour le profil sélectionné.</Text>
+
+            <View style={styles.profileOptions}>
+              {visibleAthletes.map((item) => {
+                const selected = item.athlete_id === activeAthleteId;
+                return (
+                  <Pressable key={item.athlete_id} onPress={() => selectAthlete(item.athlete_id)} style={[styles.profileOption, selected && styles.profileOptionSelected]}>
+                    <View style={[styles.avatarLarge, selected && styles.avatarLargeSelected]}>
+                      <Text style={[styles.avatarLargeText, selected && styles.avatarLargeTextSelected]}>{item.display_name.slice(0, 1).toUpperCase()}</Text>
+                    </View>
+                    <View style={styles.flex}>
+                      <Text style={[styles.profileOptionName, selected && styles.profileOptionNameSelected]}>{item.display_name}</Text>
+                      <Text style={styles.profileOptionState}>{selected ? 'Profil actif' : 'Appuyer pour basculer'}</Text>
+                    </View>
+                    {selected ? <Text style={styles.check}>✓</Text> : null}
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            <Pressable onPress={() => setProfileMenuOpen(false)} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>Fermer</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -318,7 +366,11 @@ function AuthScreen() {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const canSubmit = useMemo(() => email.trim().includes('@') && password.length >= 6 && !busy, [email, password, busy]);
+
+  const canSubmit = useMemo(
+    () => email.trim().includes('@') && password.length >= 6 && !busy,
+    [email, password, busy],
+  );
 
   async function signIn() {
     if (!canSubmit) return;
@@ -347,16 +399,38 @@ function AuthScreen() {
           <Text style={styles.brandLarge}>SPORT<Text style={styles.brandAccent}>EVOLVE</Text></Text>
           <Text style={styles.authEyebrow}>V1 · PREMIÈRE CONNEXION</Text>
           <Text style={styles.authTitle}>Ta mémoire sportive commence ici.</Text>
-          <Text style={styles.authSubtitle}>Le même compte gère pour l’instant Gregorio et Morgane. Les accès séparés pourront être ajoutés ensuite.</Text>
+          <Text style={styles.authSubtitle}>Le même compte gère Gregorio et Morgane. Tu choisis ensuite le profil actif sans afficher les deux en permanence.</Text>
+
           <View style={styles.authCard}>
             <Text style={styles.inputLabel}>EMAIL</Text>
-            <TextInput value={email} onChangeText={setEmail} placeholder="ton@email.com" placeholderTextColor="#56616c" autoCapitalize="none" autoCorrect={false} keyboardType="email-address" style={styles.input} />
-            <Text style={[styles.inputLabel, { marginTop: 14 }]}>MOT DE PASSE</Text>
-            <TextInput value={password} onChangeText={setPassword} placeholder="6 caractères minimum" placeholderTextColor="#56616c" secureTextEntry autoCapitalize="none" style={styles.input} />
+            <TextInput
+              value={email}
+              onChangeText={setEmail}
+              placeholder="ton@email.com"
+              placeholderTextColor="#56616c"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              style={styles.input}
+            />
+
+            <Text style={[styles.inputLabel, styles.passwordLabel]}>MOT DE PASSE</Text>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder="6 caractères minimum"
+              placeholderTextColor="#56616c"
+              secureTextEntry
+              autoCapitalize="none"
+              style={styles.input}
+            />
+
             {message ? <Text style={styles.successMessage}>{message}</Text> : null}
+
             <Pressable disabled={!canSubmit} onPress={() => void signIn()} style={[styles.primaryButton, !canSubmit && styles.buttonDisabled]}>
               {busy ? <ActivityIndicator color="#0c1009" /> : <Text style={styles.primaryButtonText}>Se connecter</Text>}
             </Pressable>
+
             <Pressable disabled={!canSubmit} onPress={() => void signUp()} style={[styles.secondaryButton, !canSubmit && styles.buttonDisabled]}>
               <Text style={styles.secondaryButtonText}>Créer le compte</Text>
             </Pressable>
@@ -368,15 +442,30 @@ function AuthScreen() {
 }
 
 function LoadingScreen({ label }: { label: string }) {
-  return <SafeAreaView style={[styles.safe, styles.loadingScreen]}><ActivityIndicator color="#b7d400" size="large" /><Text style={styles.loadingLabel}>{label}</Text></SafeAreaView>;
+  return (
+    <SafeAreaView style={[styles.safe, styles.loadingScreen]}>
+      <ActivityIndicator color="#b7d400" size="large" />
+      <Text style={styles.loadingLabel}>{label}</Text>
+    </SafeAreaView>
+  );
 }
 
 function Status({ label, value }: { label: string; value: string }) {
-  return <View style={styles.statusItem}><Text style={styles.statusLabel}>{label}</Text><Text style={styles.statusValue}>{value}</Text></View>;
+  return (
+    <View style={styles.statusItem}>
+      <Text style={styles.statusLabel}>{label}</Text>
+      <Text style={styles.statusValue}>{value}</Text>
+    </View>
+  );
 }
 
 function Macro({ label, value }: { label: string; value: string }) {
-  return <View style={styles.macro}><Text style={styles.macroLabel}>{label}</Text><Text style={styles.macroValue}>{value}</Text></View>;
+  return (
+    <View style={styles.macro}>
+      <Text style={styles.macroLabel}>{label}</Text>
+      <Text style={styles.macroValue}>{value}</Text>
+    </View>
+  );
 }
 
 function startOfWeek(date: Date) {
@@ -388,33 +477,64 @@ function startOfWeek(date: Date) {
   return copy;
 }
 
-function formatNumber(value: number) { return String(value).replace('.', ','); }
-function formatDayType(value: string) { return value === 'training' ? 'JOUR ENTRAÎNEMENT' : value === 'rest' ? 'JOUR REPOS' : value.toUpperCase(); }
-function formatDateTime(value: string) { return new Date(value).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); }
+function formatNumber(value: number) {
+  return String(value).replace('.', ',');
+}
+
+function formatDayType(value: string) {
+  if (value === 'training') return 'JOUR ENTRAÎNEMENT';
+  if (value === 'rest') return 'JOUR REPOS';
+  return value.toUpperCase();
+}
+
+function formatDateTime(value: string) {
+  return new Date(value).toLocaleDateString('fr-FR', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 function sessionTypeLabel(value: string) {
-  const labels: Record<string, string> = { cross_training: 'Cross training', strength: 'Force', weightlifting: 'Haltéro', gymnastics: 'Gymnastique', running: 'Running', erg: 'Erg', machine: 'Machine', hyrox: 'Hyrox', mobility: 'Mobilité', other: 'Autre' };
+  const labels: Record<string, string> = {
+    cross_training: 'Cross training',
+    strength: 'Force',
+    weightlifting: 'Haltéro',
+    gymnastics: 'Gymnastique',
+    running: 'Running',
+    erg: 'Erg',
+    machine: 'Machine',
+    hyrox: 'Hyrox',
+    mobility: 'Mobilité',
+    other: 'Autre',
+  };
   return labels[value] ?? value;
 }
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   safe: { flex: 1, backgroundColor: '#090b0f' },
-  content: { padding: 18, paddingBottom: 125 },
-  topbar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, gap: 12 },
+  content: { paddingHorizontal: 18, paddingTop: 12, paddingBottom: 112 },
+  topbar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28, gap: 10 },
+  brandBlock: { flexShrink: 1 },
   brand: { color: '#f4f7f9', fontSize: 18, fontWeight: '900', letterSpacing: -0.8 },
   brandLarge: { color: '#f4f7f9', fontSize: 24, fontWeight: '900', letterSpacing: -1.1 },
   brandAccent: { color: '#b7d400' },
-  version: { color: '#65717c', fontSize: 8, fontWeight: '800', letterSpacing: 1.1, marginTop: 2 },
-  logoutButton: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1, borderColor: '#29323a', backgroundColor: '#10151a' },
-  logoutText: { color: '#909ba5', fontSize: 10, fontWeight: '800' },
-  profileSwitch: { flexDirection: 'row', alignSelf: 'flex-start', backgroundColor: '#11161b', borderRadius: 14, padding: 3, borderWidth: 1, borderColor: '#242b33', marginBottom: 26 },
-  profileChip: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: 11 },
-  profileChipActive: { backgroundColor: '#202817' },
-  profileChipText: { color: '#6f7a85', fontSize: 11, fontWeight: '800' },
-  profileChipTextActive: { color: '#d7e888' },
+  version: { color: '#65717c', fontSize: 8, fontWeight: '800', letterSpacing: 0.9, marginTop: 2 },
+  topActions: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  activeProfileButton: { maxWidth: 108, height: 38, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 7, borderRadius: 13, borderWidth: 1, borderColor: '#34412a', backgroundColor: '#151d14' },
+  avatarMini: { width: 24, height: 24, borderRadius: 9, backgroundColor: '#2d3a20', alignItems: 'center', justifyContent: 'center', marginRight: 5 },
+  avatarMiniText: { color: '#cde35e', fontSize: 10, fontWeight: '900' },
+  activeProfileText: { flexShrink: 1, color: '#dce8aa', fontSize: 9.5, fontWeight: '900' },
+  chevron: { color: '#8fa052', fontSize: 13, marginLeft: 3, marginTop: -3 },
+  logoutButton: { height: 38, paddingHorizontal: 10, borderRadius: 13, borderWidth: 1, borderColor: '#29323a', backgroundColor: '#10151a', alignItems: 'center', justifyContent: 'center' },
+  logoutText: { color: '#909ba5', fontSize: 9, fontWeight: '800' },
   eyebrow: { color: '#9ab300', fontWeight: '900', fontSize: 9, letterSpacing: 1.4 },
   title: { color: '#f4f7f9', fontWeight: '900', fontSize: 29, letterSpacing: -1.2, marginTop: 7, maxWidth: 330 },
   subtitle: { color: '#7f8a95', fontSize: 12, lineHeight: 18, marginTop: 8, maxWidth: 345 },
+  loadingInline: { marginTop: 24 },
   statusRow: { flexDirection: 'row', gap: 8, marginTop: 22, marginBottom: 18 },
   statusItem: { flex: 1, padding: 12, borderRadius: 14, backgroundColor: '#10151a', borderWidth: 1, borderColor: '#222a31' },
   statusLabel: { color: '#6e7882', fontSize: 8, fontWeight: '800' },
@@ -447,13 +567,24 @@ const styles = StyleSheet.create({
   foundation: { marginTop: 6, padding: 15, borderRadius: 16, backgroundColor: '#0d1115', borderWidth: 1, borderColor: '#202831' },
   foundationTitle: { color: '#b7d400', fontSize: 12, fontWeight: '900' },
   foundationText: { color: '#6f7b86', fontSize: 9, lineHeight: 14, marginTop: 5 },
-  bottomNav: { position: 'absolute', left: 12, right: 12, bottom: 8, height: 72, borderRadius: 22, backgroundColor: '#0f1418', borderWidth: 1, borderColor: '#283139', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingHorizontal: 10 },
-  navSide: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 48 },
-  navActive: { color: '#d8e789', fontSize: 9, fontWeight: '900' },
-  navText: { color: '#75808a', fontSize: 9, fontWeight: '900' },
-  centralAdd: { width: 72, height: 72, borderRadius: 25, backgroundColor: '#b7d400', alignItems: 'center', justifyContent: 'center', marginTop: -24, borderWidth: 5, borderColor: '#090b0f' },
-  centralPlus: { color: '#0c1009', fontSize: 28, lineHeight: 28, marginTop: 2 },
-  centralLabel: { color: '#0c1009', fontSize: 8, fontWeight: '900', marginTop: 1 },
+  modalRoot: { flex: 1, backgroundColor: 'rgba(2, 4, 6, 0.68)', justifyContent: 'center', padding: 22 },
+  profileModal: { borderRadius: 24, padding: 18, backgroundColor: '#11171b', borderWidth: 1, borderColor: '#303a40' },
+  modalEyebrow: { color: '#9ab300', fontSize: 8, fontWeight: '900', letterSpacing: 1.1 },
+  modalTitle: { color: '#f2f5f6', fontSize: 23, fontWeight: '900', letterSpacing: -0.8, marginTop: 6 },
+  modalText: { color: '#7f8a93', fontSize: 10, lineHeight: 15, marginTop: 6 },
+  profileOptions: { gap: 8, marginTop: 18 },
+  profileOption: { minHeight: 64, borderRadius: 17, borderWidth: 1, borderColor: '#283138', backgroundColor: '#0d1216', flexDirection: 'row', alignItems: 'center', padding: 10 },
+  profileOptionSelected: { borderColor: '#5d7131', backgroundColor: '#182014' },
+  avatarLarge: { width: 42, height: 42, borderRadius: 14, backgroundColor: '#1b2329', alignItems: 'center', justifyContent: 'center', marginRight: 11 },
+  avatarLargeSelected: { backgroundColor: '#34431e' },
+  avatarLargeText: { color: '#87939b', fontSize: 15, fontWeight: '900' },
+  avatarLargeTextSelected: { color: '#cfe765' },
+  profileOptionName: { color: '#dce2e5', fontSize: 14, fontWeight: '900' },
+  profileOptionNameSelected: { color: '#e9f1bd' },
+  profileOptionState: { color: '#6f7a82', fontSize: 8.5, marginTop: 3 },
+  check: { color: '#b7d400', fontSize: 18, fontWeight: '900', paddingHorizontal: 6 },
+  closeButton: { minHeight: 44, borderRadius: 14, borderWidth: 1, borderColor: '#303a42', alignItems: 'center', justifyContent: 'center', marginTop: 14 },
+  closeButtonText: { color: '#9ba5ac', fontSize: 10, fontWeight: '900' },
   errorCard: { padding: 15, borderRadius: 16, backgroundColor: '#211517', borderWidth: 1, borderColor: '#5a3036', marginBottom: 16 },
   errorTitle: { color: '#f1c9cf', fontSize: 12, fontWeight: '900' },
   errorText: { color: '#b98e95', fontSize: 10, lineHeight: 15, marginTop: 5 },
@@ -468,11 +599,12 @@ const styles = StyleSheet.create({
   authSubtitle: { color: '#7f8a95', fontSize: 11, lineHeight: 17, marginTop: 10, maxWidth: 340 },
   authCard: { marginTop: 28, padding: 17, borderRadius: 20, backgroundColor: '#10151a', borderWidth: 1, borderColor: '#252e36' },
   inputLabel: { color: '#818d98', fontSize: 9, fontWeight: '900', letterSpacing: 0.8, marginBottom: 7 },
+  passwordLabel: { marginTop: 14 },
   input: { minHeight: 50, borderRadius: 13, borderWidth: 1, borderColor: '#303a43', backgroundColor: '#0b1014', color: '#f1f4f6', paddingHorizontal: 14, fontSize: 14 },
   primaryButton: { minHeight: 50, borderRadius: 14, backgroundColor: '#b7d400', alignItems: 'center', justifyContent: 'center', marginTop: 20 },
   primaryButtonText: { color: '#0c1009', fontWeight: '900', fontSize: 13 },
   secondaryButton: { minHeight: 48, borderRadius: 14, borderWidth: 1, borderColor: '#303a43', alignItems: 'center', justifyContent: 'center', marginTop: 9 },
-  secondaryButtonText: { color: '#aeb7bd', fontWeight: '900', fontSize: 12 },
+  secondaryButtonText: { color: '#a5afb7', fontWeight: '900', fontSize: 11 },
   buttonDisabled: { opacity: 0.45 },
-  successMessage: { color: '#b9d25a', fontSize: 10, lineHeight: 15, marginTop: 12 },
+  successMessage: { color: '#b7d400', fontSize: 10, lineHeight: 15, marginTop: 12 },
 });
